@@ -1,32 +1,27 @@
 FROM lsiobase/mono
-MAINTAINER sparklyballs
+LABEL MAINTAINER gugahoi
 
 # set version label
 ARG BUILD_DATE
 ARG VERSION
-LABEL build_version="Linuxserver.io version:- ${VERSION} Build-date:- ${BUILD_DATE}"
+LABEL build_version="gugahoi version:- ${VERSION} Build-date:- ${BUILD_DATE}"
 
 # install ombi
-RUN \
- mkdir -p \
-	/opt && \
- ombi_tag=$(curl -sX GET "https://api.github.com/repos/tidusjar/Ombi/releases/latest" \
-	| awk '/tag_name/{print $4;exit}' FS='[""]') && \
- curl -o \
- /tmp/ombi-src.zip -L \
-	"https://github.com/tidusjar/Ombi/releases/download/${ombi_tag}/Ombi.zip" && \
- unzip -q /tmp/ombi-src.zip -d /tmp && \
- mv /tmp/Release /opt/ombi && \
-
-# clean up
- rm -rf \
-	/tmp/* \
-	/var/lib/apt/lists/* \
-	/var/tmp/*
+COPY linux.tar.gz /tmp
+RUN mkdir -p /opt/ombi && \
+	tar -xvf /tmp/linux.tar.gz -C /opt/ombi && \
+	chmod +x /opt/ombi/Ombi && \
+	apt-get update && \
+	apt-get install -y --no-install-recommends libunwind8 libicu55 && \
+	rm -rf \
+		/tmp/* \
+		/var/lib/apt/lists/* \
+		/var/tmp/*
 
 # add local files
 COPY /root /
 
 # ports and volumes
+WORKDIR /opt/ombi
 EXPOSE 3579
 VOLUME /config

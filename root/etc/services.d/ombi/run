@@ -1,4 +1,5 @@
 #!/usr/bin/with-contenv bash
 
+cd /opt/ombi
 exec \
-	s6-setuidgid abc mono /opt/ombi/Ombi.exe
+	s6-setuidgid abc ./Ombi
